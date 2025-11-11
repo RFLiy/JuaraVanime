@@ -1,7 +1,11 @@
-const JIKAN_GENRE = "https://api.jikan.moe/v4/genres/anime";
+import Link from "next/link";
+
+const JIKAN_GENRE = process.env.NEXT_PUBLIC_JIKAN_GENRE_API_URL || "https://api.jikan.moe/v4/genres/anime";
 
 async function fetchGenres() {
-  const res = await fetch(JIKAN_GENRE, { next: { revalidate: 3600 } });
+  const res = await fetch(JIKAN_GENRE, { 
+    next: { revalidate: 3600 } 
+  });
   const json = await res.json();
   return json.data || [];
 }
@@ -15,14 +19,15 @@ export default async function GenrePage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         {genres.map((genre: any) => (
-          <a
+
+          <Link 
             key={genre.mal_id}
             href={`/genre/${genre.mal_id}?name=${genre.name}`}
             className="bg-slate-800 p-4 rounded hover:bg-slate-700 transition block text-center"
           >
             <p className="font-semibold">{genre.name}</p>
             <p className="text-xs text-gray-400">{genre.count} anime</p>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

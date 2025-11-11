@@ -1,11 +1,11 @@
 import DetailAnime from "../../../components/DetailAnime";
 import Link from "next/link";
 
-const JIKAN_BASE = "https://api.jikan.moe/v4";
+const API = process.env.NEXT_PUBLIC_JIKAN_API_BASE_URL;
 
 async function fetchAnime(id: string) {
   try {
-    const res = await fetch(`${JIKAN_BASE}/anime/${id}/full`);
+    const res = await fetch(`${API}/anime/${id}/full`);
     const json = await res.json();
     return json.data || null;
   } catch {

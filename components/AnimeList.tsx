@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import AnimeCard from "./AnimeCard";
 import SkeletonLoading from "./SekeletonLoading";
 
-const JIKAN_BASE = "https://api.jikan.moe/v4";
+const JIKAN_BASE = process.env.NEXT_PUBLIC_JIKAN_API_BASE_URL;
 
 const AnimeList: React.FC<{ page: number }> = ({ page }) => {
   const [animeList, setAnimeList] = useState<any[] | null>(null);

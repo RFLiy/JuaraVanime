@@ -5,41 +5,35 @@ import { useParams, useSearchParams } from "next/navigation";
 import AnimeCard from "@/components/AnimeCard";
 import SearchBar from "@/components/SearchBar";
 
-const API = "https://api.jikan.moe/v4/anime";
+const API = process.env.NEXT_PUBLIC_JIKAN_API_BASE_URL || "https://api.jikan.moe/v4";
 
 async function fetchByGenre(id: string, page: number) {
-  const res = await fetch(`${API}?genres=${id}&page=${page}`);
+const res = await fetch(`${API}/anime?genres=${id}&page=${page}`);
   const json = await res.json();
   return json.data || [];
 }
 
 export default function GenreDetailPage() {
-  const params = useParams(); // Ambil dynamic param [id]
+  const params = useParams(); 
   const id = params?.id || "";
 
-  const searchParams = useSearchParams(); // Ambil query param client-side
+  const searchParams = useSearchParams();
   const genreName = searchParams?.get("name") || "Genre";
 
   const [page, setPage] = useState(1);
   const [animeList, setAnimeList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-      // ...
-      if (!id) return;
 
-      // --- PERBAIKAN DI SINI ---
-      const genreId = Array.isArray(id) ? id[0] : id; // Pastikan id adalah string tunggal
-      // -------------------------
-
-      setLoading(true);
-
-      // Gunakan genreId yang sudah pasti bertipe string
-      fetchByGenre(genreId, page).then((data) => { 
-          setAnimeList(data);
-          setLoading(false);
-      });
-  }, [id, page]);
+useEffect(() => {
+    if (!id) return;
+    const genreId = Array.isArray(id) ? id[0] : id; 
+    setLoading(true);
+    fetchByGenre(genreId, page).then((data) => { 
+        setAnimeList(data);
+        setLoading(false);
+    });
+}, [id, page]);
 
   return (
     <div className="p-4">
