@@ -1,8 +1,7 @@
 "use client"
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import SkeletonLoading from "./SekeletonLoading";
+import { Star } from "lucide-react";
 
 export default function AnimeCard({ anime }: { anime: any }) {
   const img =
@@ -10,46 +9,40 @@ export default function AnimeCard({ anime }: { anime: any }) {
     anime.images?.webp?.image_url ||
     "/placeholder.png";
 
-  const AnimeList: React.FC<{ fetchAnime: () => Promise<any[]> }> = ({ fetchAnime }) => {
-  const [animeList, setAnimeList] = useState<any[] | null>(null);
-
-  useEffect(() => {
-    fetchAnime().then((data) => setAnimeList(data));
-  }, [fetchAnime]);
-
-  if (!animeList) {
-    // Tampilkan 10 skeleton card
-    return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {Array.from({ length: 10 }).map((_, i) => (
-          <SkeletonLoading key={i} />
-        ))}
-      </div>
-    );
-  }
-}
-
   return (
-    <Link
-      href={`/anime/${anime.mal_id}`}
-      className="bg-[#0f1a2d] rounded-lg overflow-hidden shadow-md hover:scale-[1.02] transition block"
+    <Link 
+      href={`/anime/${anime.mal_id}`} 
+      className="relative group bg-[#0f1a2d] rounded-lg overflow-hidden ..."
     >
+      {/* Badge Rating (Melayang di atas gambar) */}
+      {anime.score && (
+        <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-sm text-yellow-400 px-2 py-1 rounded-md flex items-center gap-1 z-10 text-xs font-bold">
+          <Star size={12} fill="currentColor" />
+          {anime.score}
+        </div>
+      )}
+
       {/* Poster */}
       <img
         src={img}
         alt={anime.title}
         className="w-full h-64 object-cover"
+        loading="lazy"
       />
 
       {/* Info */}
       <div className="p-2">
-        <p className="text-sm leading-tight">{anime.title}</p>
-
-        <p className="text-xs text-emerald-400 mt-1">
-          {anime.type} • {anime.episodes ?? "?"} eps
+        <p className="text-sm font-medium leading-tight line-clamp-2 h-10 group-hover:text-sky-400 transition">
+          {anime.title}
         </p>
+
+        <div className="flex justify-between items-center mt-2">
+          <p className="text-xs text-sky-400">
+            {anime.type} • {anime.episodes ?? "?"} eps
+          </p>
+          <span className="text-[10px] text-gray-400 italic">Score: {anime.score ?? 'N/A'}</span>
+        </div>
       </div>
     </Link>
-    
   );
 }

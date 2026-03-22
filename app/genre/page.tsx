@@ -15,7 +15,7 @@ export default async function GenrePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-4">Pilih Genre</h1>
+      <h1 className="text-3xl font-bold mb-7 text-center">Pilih Genre</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
         {genres.map((genre: any) => (
@@ -23,7 +23,7 @@ export default async function GenrePage() {
           <Link 
             key={genre.mal_id}
             href={`/genre/${genre.mal_id}?name=${genre.name}`}
-            className="bg-slate-800 p-4 rounded hover:bg-slate-700 transition block text-center"
+            className="bg-black p-4 rounded hover:bg-slate-700 transition block text-center"
           >
             <p className="font-semibold">{genre.name}</p>
             <p className="text-xs text-gray-400">{genre.count} anime</p>

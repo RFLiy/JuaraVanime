@@ -34,7 +34,7 @@ export default function SearchBar() {
       {/* SEARCH INPUT */}
       <form
         onSubmit={handleSearch}
-        className="flex gap-2 items-center bg-[#0f1a2d] p-3 rounded-lg"
+        className="flex gap-2 items-center bg-black p-3 rounded-lg"
       >
         <input
           value={query}
@@ -45,7 +45,7 @@ export default function SearchBar() {
 
         <button
           type="submit"
-          className="px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-800 transition"
+          className="px-4 py-2 bg-sky-600 rounded hover:bg-sky-800 transition"
         >
           {loading ? "Mencari..." : "Search"}
         </button>
@@ -58,7 +58,7 @@ export default function SearchBar() {
             <Link
               href={`/anime/${anime.mal_id}`}
               key={anime.mal_id}
-              className="bg-[#0b1220] rounded-lg p-2 hover:scale-[1.02] transition"
+              className="bg-black] rounded-lg p-2 hover:scale-[1.02] transition"
             >
               <img
                 src={anime.images?.jpg?.image_url}
