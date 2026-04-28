@@ -7,8 +7,19 @@ import SearchBar from "@/components/SearchBar";
 
 const API = process.env.NEXT_PUBLIC_JIKAN_API_BASE_URL || "https://api.jikan.moe/v4";
 
-// 1. Fungsi fetch yang mendukung sorting
-async function fetchByGenre(id: string, page: number, orderBy: string, sort: string) {
+interface AnimeData {
+  mal_id: number;
+  title: string;
+  score?: number;
+  type?: string;
+  episodes?: number;
+  images: {
+    jpg: { image_url: string };
+    webp?: { image_url: string };
+  };
+}
+
+async function fetchByGenre(id: string, page: number, orderBy: string, sort: string): Promise<AnimeData[]> {
   const res = await fetch(`${API}/anime?genres=${id}&page=${page}&order_by=${orderBy}&sort=${sort}`);
   const json = await res.json();
   return json.data || [];
@@ -21,30 +32,36 @@ export default function GenreDetailPage() {
   const genreName = searchParams?.get("name") || "Genre";
 
   const [page, setPage] = useState(1);
-  const [animeList, setAnimeList] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [animeList, setAnimeList] = useState<AnimeData[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  // 2. State untuk Filter
   const [orderBy, setOrderBy] = useState("popularity");
   const [sort, setSort] = useState("asc");
 
-    useEffect(() => {
-      if (!id) return;
-      const genreId = Array.isArray(id) ? id[0] : id;
-      setLoading(true);
-      
-      fetchByGenre(genreId, page, orderBy, sort).then((data) => {
-        // FILTER DUPLIKAT DI SINI
-        const uniqueData = data.filter((item: any, index: number, self: any[]) =>
+  useEffect(() => {
+    if (!id) return;
+    const genreId = Array.isArray(id) ? id[0] : id;
+    
+    async function loadData() {
+      try {
+        setLoading(true);
+        const data = await fetchByGenre(genreId, page, orderBy, sort);
+        
+        const uniqueData = data.filter((item, index, self) =>
           index === self.findIndex((t) => t.mal_id === item.mal_id)
         );
 
         setAnimeList(uniqueData);
+      } catch (err) {
+        console.error(err);
+      } finally {
         setLoading(false);
-      });
-    }, [id, page, orderBy, sort]);
+      }
+    }
 
-  // Handler saat filter berubah
+    loadData();
+  }, [id, page, orderBy, sort]);
+
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setPage(1);
@@ -66,9 +83,8 @@ export default function GenreDetailPage() {
       <SearchBar />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold">{genreName} Anime</h1>
+        <h1 className="text-2xl font-bold text-white">{genreName} Anime</h1>
 
-        {/* 4. Dropdown Filter UI */}
         <select 
           onChange={handleFilterChange}
           className="bg-[#1a2638] text-sm text-white px-3 py-2 mt-3 rounded-lg border border-slate-700 outline-none focus:border-sky-500 transition"
@@ -81,13 +97,15 @@ export default function GenreDetailPage() {
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-           <p className="col-span-full text-center py-10">Loading...</p>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="w-full h-64 bg-slate-800 animate-pulse rounded-lg"></div>
+          ))}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {animeList.length > 0 ? (
-              animeList.map((anime: any) => (
+              animeList.map((anime) => (
                 <AnimeCard key={anime.mal_id} anime={anime} />
               ))
             ) : (
@@ -95,12 +113,11 @@ export default function GenreDetailPage() {
             )}
           </div>
 
-          {/* PAGINATION */}
           <div className="flex justify-center items-center gap-6 mt-10">
             <button
               onClick={() => { setPage((prev) => Math.max(prev - 1, 1)); window.scrollTo(0,0); }}
               disabled={page === 1}
-              className="px-6 py-2 bg-slate-800 rounded-full hover:bg-sky-600 disabled:opacity-30 transition font-semibold"
+              className="px-6 py-2 bg-slate-800 text-white rounded-full hover:bg-sky-600 disabled:opacity-30 transition font-semibold"
             >
               Prev
             </button>
@@ -109,7 +126,7 @@ export default function GenreDetailPage() {
             </span>
             <button
               onClick={() => { setPage((prev) => prev + 1); window.scrollTo(0,0); }}
-              className="px-6 py-2 bg-slate-800 rounded-full hover:bg-sky-600 transition font-semibold"
+              className="px-6 py-2 bg-slate-800 text-white rounded-full hover:bg-sky-600 transition font-semibold"
             >
               Next
             </button>
